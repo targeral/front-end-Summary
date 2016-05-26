@@ -1,0 +1,251 @@
+# Canvas
+## 概述
+Canvas API（画布）用于在网页实时生成图像，并且可以操作图像内容，基本上它是一个可以用JavaScript操作的位图（bitmap）。
+
+首先需要创建一个canvas画布(canvas元素)。
+
+```html
+<canvas id="myCanvas" width="400" height="200">
+    您的浏览器不支持canvas！
+</canvas>
+```
+
+上面代码中，如果浏览器不支持这个API，则就会显示canvas标签中间的文字——“您的浏览器不支持canvas！”。
+
+每个canvas元素都有一个对应的context对象（上下文对象），Canvas API定义在这个context对象上面，所以需要获取这个对象，方法是使用``getContext``方法。
+
+```js
+var canvas = document.getElementById('myCanvas');
+
+if(canvas.getContext) {
+    var ctx = canvas.getContext('2d');
+}
+```
+
+上面代码中，getContext方法指定参数2d，表示该canvas对象用于生成2D图案（即平面图案）。如果参数是webgl，就表示用于生成3D图像（即立体图案），这部分实际上单独叫做WebGL API。
+
+## 绘图方法
+canvas画布提供了一个用来作图的平面空间，该空间的每个点都有自己的坐标，x表示横坐标，y表示竖坐标。*原点(0, 0)位于图像左上角，x轴的正向是原点向右，y轴的正向是原点向下*。
+
+## 图像处理
+### drawImage方法
+canvas允许将图像文件插入画布，做法是读取图片后，使用drawImage方法在画布内进行重绘。
+
+```js
+var img = new Image();
+img.src = "image.png";
+ctx.drawImage(img, 0, 0);// 设置对应的图像对象，以及它在画布上的位置
+```
+
+上面代码将一个PNG图像载入canvas。
+
+由于图像的载入需要时间，drawImage方法只能在图像完全载入后才能调用，因此上面的代码需要改写
+
+```js
+var image = new Image();
+
+image.onload = function() {
+    var canvas = document.createElement("canvas");
+        canvas.width = image.width;
+        canvas.height = image.height;
+        canvas.getContext('2d').drawImage(image, 0, 0);
+
+        return canvas;
+}
+
+image.src = "image.png";
+```
+
+drawImage()方法接受三个参数，第一个参数是图像文件的DOM元素（即img标签），第二个和第三个参数是图像左上角在Canvas元素中的坐标，上例中的（0, 0）就表示将图像左上角放置在Canvas元素的左上角。
+
+### getImageData方法,putImageData方法
+
+1. getImageData方法可以用来读取Canvas的内容，返回一个对象，包含了每个像素的信息。
+
+```js
+var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+```
+
+imageData对象有一个data属性，它的值是一个一维数组。该数组的值，依次是每个像素的红、绿、蓝、alpha通道值，因此该数组的长度等于 图像的像素宽度 x 图像的像素高度 x 4，每个值的范围是0–255。这个数组不仅可读，而且可写，因此通过操作这个数组的值，就可以达到操作图像的目的。修改这个数组以后，使用putImageData方法将数组内容重新绘制在Canvas上。
+
+```js
+{
+    data : [red, green, blue, alpha, red, green, blue, alpha, ...]
+}
+
+context.putImageData(imageData, 0, 0);
+```
+
+### toDataURL方法
+对图像数据做出修改以后，可以使用toDataURL方法，将Canvas数据重新转化成一般的图像文件形式。简单的说:*将canvas转换为图像文件*。
+
+```js
+function converCanvasToImage( canvas ) {
+    var image = new Image();
+    image.src = canvas.toDataURL("image/png");
+    return image;
+}
+```
+
+上面的代码将Canvas数据，转化成PNG data URI。
+
+### save方法，restore方法
+save方法用于保存上下文环境，restore方法用于恢复到上一次保存的上下文环境
+
+```js
+ctx.save();
+ctx.shadowOffsetX = 10;
+ctx.shadowOffsetY = 10;
+ctx.shadowBlur = 5;
+ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
+
+ctx.fillStyle = "#cc0000";
+ctx.fillRect(10, 10, 150, 100);
+
+ctx.restore(); 
+
+ctx.fillStyle = "#000000";
+ctx.fillRect(180,10,150,100); 
+```
+
+上面代码先用save方法，保存了当前设置，然后绘制了一个有阴影的矩形。接着，使用restore方法，恢复了保存前的设置，绘制了一个没有阴影的矩形。
+
+## 像素处理
+通过getImageData方法和putImageData方法，可以处理每个像素，进而操作图像内容。
+
+假定filter是一个处理像素的函数，那么整个对Canvas的处理流程，可以用下面的代码表示。
+
+```js
+if(canvas.width > 0 && canvas.height > 0) {
+    var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    filter(imageData);
+    context.putImageData(imageData, 0, 0);
+}
+```
+
+以下是几种常见的处理方法。
+
+### 灰度效果
+所谓的灰度效果，其实就是黑白效果。*灰度图（grayscale）就是取红、绿、蓝三个像素值的算术平均值*。
+
+假定d[i]是像素数组中一个像素的红色值,则d[i+1]为绿色值,d[i+2]为蓝色值,d[i+3]就是alpha值。转为灰度的算法，
+**就是将红，绿，蓝三个值相加后除以3，再将结果写回数组。**
+
+```js
+var grayscale = function(pixels) {
+    var d = pixels.data;
+    for(var i = 0; i < d.length; i += 4) {
+        var r = d[i],
+            g = d[i+1],
+            b = d[i+2],
+            d[i] = d[i+1] = d[i+2] = (r + g + b)/3;
+    }
+
+    return pixels;
+}
+```
+
+### 复古效果
+**复古效果（sepia）则是将红、绿、蓝三个像素，分别取这三个值的某种加权平均值，使得图像有一种古旧的效果。**
+
+```js
+var sepia = function(pixels) {
+    var d = pixels.data;
+    for(var i = 0; i < d.length; i += 4) {
+        var r = d[i];
+        var g = d[i+1];
+        var b = d[i+2];
+        d[i] = (r * 0.393) + (g * 0.769) + (b * 0.189);//red
+        d[i + 1] = (r * 0.349) + (g * 0.686) + (b * 0.168);//green
+        d[i + 2] = (r * 0.272) + (g * 0.534) + (b * 0.131);//blue
+    }
+
+    return pixels;
+}
+```
+
+### 红色蒙板效果
+红色蒙版指的是，让图像呈现一种偏红的效果。
+
+**算法是将红色通道设为红、绿、蓝三个值的平均值，而将绿色通道和蓝色通道都设为0。**
+
+```js
+var redmask = function(pixels) {
+    var d = pixels.data,
+        i, len = d.length;
+    var r, g, b;
+    for(i = 0; i < len; i += 4) {
+        r = d[i];
+        g = d[i + 1];
+        b = d[i + 2];
+        d[i] = (r+g+b) /3;// 红色通道取平均值
+        d[i+1] = d[i+2] = 0; // 绿色通道和蓝色通道都设为0
+    }
+
+    return pixels;
+}
+```
+
+### 亮度效果
+亮度效果（brightness）是指让图像变得更亮或更暗。
+
+**算法将红色通道、绿色通道、蓝色通道，同时加上一个正值或负值。**
+
+```js
+var brightness = function(pixels, delta) {
+    var d = pixels.data,
+        i, len = d.length;
+    for(i = 0; i < len; i += 4) {
+        d[i] += delta;
+        d[i + 1] += delta;
+        d[i + 2] += delta;
+    }
+
+    return pixels;
+}
+```
+
+### 反转效果
+反转效果（invert）是指图片呈现一种色彩颠倒的效果。
+
+**算法为红、绿、蓝通道都取各自的相反值（255-原值）。**
+
+```js
+var invert = function(pixels) {
+    var d = pixels.data,
+        i, len = d.length;
+
+    for(i = 0; i < len; i += 4) {
+        d[i] = 255 - d[i];
+        d[i + 1] = 255 - d[i + 1];
+        d[i + 2] = 255 - d[i + 2];
+    }
+
+    return pixels;
+}
+```
+
+## 动画
+利用JavaScript，可以在canvas元素上很容易地产生动画效果。
+
+```js
+var posX = 20,
+    poxY = 100;
+
+setInterval(function() {
+    context.fillStyle = "black";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    posX += 1;
+    posY += 0.25;
+
+    context.beginPath();
+    context.fillStyle = "white";
+
+    context.arc(posX, posY, 10, 0, Math.PI * 2, true);
+    context.closePath();
+    context.fill();
+}, 30)
+```
+
+上面代码会产生一个小圆点，每隔30毫秒就向右下方移动的效果。setInterval函数的一开始，之所以要将画布重新渲染黑色底色，是为了抹去上一步的小圆点。
