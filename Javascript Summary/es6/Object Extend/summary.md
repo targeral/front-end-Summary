@@ -8,8 +8,6 @@
 - 属性的遍历
 - `__proto__`属性,Object.setPrototypeOf(),Object.getPrototypeOf()
 - Object.values(), Object.entries()
-- 对象的扩展运算符
-- Object.getOwnPropertyDescriptions()
 
 ## 属性的简洁表达法
 ES6允许直接写入变量和函数，作为对象的属性和方法。这样的书写更加简洁。
@@ -471,8 +469,8 @@ SomeClass.prototype.anotherMethod = function () {
 上面代码使用了对象属性的简洁表示法，直接将两个函数放在大括号中，再使用assign方法添加到SomeClass.prototype之中。
 1. 克隆对象
 2. function clone(origin) {
-return Object.assign({}, origin);
-}
+3. return Object.assign({}, origin);
+4. }
 
 上面代码将原始对象拷贝到一个空对象，就得到了原始对象的克隆。不过，采用这种方法克隆，只能克隆原始对象自身的值，不能克隆它继承的值。如果想要保持继承链，可以采用下面的代码。
 
@@ -540,4 +538,268 @@ ES6新增了两个操作，会忽略enumerable为false的属性。
 Object.getOwnPropertyDescriptor(Object.prototype, 'toString').enumerable //false
 
 Object.getOwnPropertyDescriptor([], 'length').enumerable //false
+```
+
+## 属性的遍历
+ES6一共有6种方法可以遍历对象的属性。
+- for...in
+
+  for..in循环遍历对象自身的和继承的可枚举属性(不包含Symbol属性)。
+
+- Object.keys(obj)
+
+  Object.keys返回一个数组，包含对象自身的(不含继承的)所有可枚举属性(不含Symbol属性)。
+
+- Object.getOwnPropertyNames(obj)
+
+  Object.getOwnPropertyNames返回一个数组，包含对象自身的所有属性(不含Symbol属性，但是包括不可枚举属性)。
+
+- Object.getOwnPropertySymbols(obj)
+
+  Object.getOwnPropertySymbols返回一个数组，包含对象自身的所有Symbol属性。
+
+- Reflect.ownKeys(obj)
+
+  Reflect.ownKeys返回一个数组，包含对象自身的属性，不管是属性名是Symbol或字符串，也不管是否可枚举。
+
+- Reflect.enumerate(obj)
+
+  Reflect.enumerate返回一个Iterator对象，遍历对象自身的和继承的所有可枚举属性(不含Symbol属性)，与for..in循环相同。
+
+以上的6种方法遍历对象的属性，都遵守同样的属性遍历的次序规则。
+- 首先遍历所有属性名为数值的属性，按照数字排序。
+- 其次遍历所有属性名为字符串的属性，按照生成时间排序。
+- 最后遍历所有属性名为Symbol值的属性，按照生成时间排序。
+
+```js
+Reflect.ownKeys({[Symbol()] : 0, b : 0, 10 : 0, 2 : 0, a : 0})
+
+//['2', '10', 'b', 'a', Symbol()]
+```
+
+上面代码中，Reflect.ownKeys方法返回一个数组，包含了参数对象的所有属性。这个数组的属性次序是这样的，首先是数值属性2和10，其次是字符串属性b和a，最后是Symbol属性。
+
+## ``__proto__``属性，``Object.setPrototypeOf()``，``Object.getPrototypeOf()``
+1. `__proto__`属性
+
+`__proto__`属性（前后各两个下划线），用来读取或设置当前对象的prototype对象。目前，所有浏览器（包括IE11）都部署了这个属性。
+
+```js
+//es6的写法
+var obj = {
+  method : function() {...}
+};
+obj.__proto__ = someOtherObj;
+
+//es5的写法
+var obj = Object.create(someOtherObj);
+obj.method = function() {...};
+```
+
+_该属性没有写入ES6的正文，而是写入了附录，原因是 `__proto__` 前后的双下划线，说明它本质上是一个内部属性，而不是一个正式的对外的API，只是由于浏览器广泛支持，才被加入了ES6。标准明确规定，只有浏览器必须部署这个属性，其他运行环境不一定需要部署，而且新的代码最好认为这个属性是不存在的。因此，无论从语义的角度，还是从兼容性的角度，都不要使用这个属性，而是使用下面的Object.setPrototypeOf()（写操作）、Object.getPrototypeOf()（读操作）、Object.create()（生成操作）代替。_
+
+在实现上，`__proto__`调用的是`Object.prototype.__proto__`，具体实现如下。
+
+```js
+Object.defineProperty(Object.prototype, '__proto__', {
+  get() {
+    let _thisObj = Object(this);
+    return Object.getPrototypeOf(_thisObj);
+  },
+  set(proto) {
+    if(this === undefined || this === null) {
+      throw new TypeError();
+    }
+    if(!isObject(this)) {
+      return undefined;
+    }
+    if(!isObject(proto)) {
+      return undefined;
+    }
+    let status = Reflect.setPrototypeOf(this, proto);
+    if(!status) {
+      throw new TypeError();
+    }
+  },
+});
+
+function isObject(value) {
+  return Object(value) === value;
+}
+```
+
+如果一个对象本身部署了`__proto__`属性，则该属性的值就是对象的原型。
+
+```js
+Object.getPrototypeOf({__proto__ : null });
+```
+
+1. Object.setPrototypeOf()
+2. Object.setPrototypeOf方法的作用与`__proto__`相同，用来设置一个对象的prototype对象。
+
+```js
+//格式
+Object.setPrototypeOf(object, prototype);
+
+//用法
+var o = Object.setPrototypeOf({}, null);
+```
+
+该方法等同于下面的函数。
+
+```js
+function setPrototypeOf(obj, proto) {
+  obj.__proto__ = proto;
+  return obj;
+}
+```
+
+下面是一个例子。
+
+```js
+let proto = {};
+let obj = { x : 10 };
+Object.setPrototypeOf(obj, proto);
+
+proto.y = 20;
+proto.z = 40;
+
+obj.x //10
+obj.y //20
+obj.z //40
+```
+
+上面代码将proto对象设为obj对象的原型，所以从obj对象可以读取proto对象的属性。
+1. Object.getPrototypeOf()
+2. 该方法与setPrototypeOf方法配套，用于读取一个对象的prototype对象。
+
+```js
+Object.getPrototypeOf(obj);
+```
+
+下面是一个例子:
+
+```js
+function Rectangle() {
+
+}
+
+var rec = new Rectangle();
+Object.getPrototypeOf(rec) === Rectangle.prototype;// ture
+
+Object.setPrototypeOf(rec, Object.prototype);
+Object.getPrototypeOf(rec) === Rectangle.prototype; // false
+```
+
+## Object.values(), Object.entries()
+### Object.keys()
+ES5引入`Object.keys()`方法，返回一个数组，成员是该参数对象自身(不包括继承的)的所有可遍历属性的键名。
+
+```js
+var obj = { foo : "bar", baz : 42};
+Object.keys(obj);
+// ["foo", "baz"]
+```
+
+目前，ES7有一个提案，引入了跟Object.keys配套的Object.values和Object.entries。
+
+```js
+let {keys, values, entries} = Object;
+let obj = { a : 1, b : 2, c : 3};
+
+for( let key of keys(obj) ) {
+  console.log(key);// 'a', 'b', 'c'
+}
+
+for( let value of values(obj) ) {
+  console.log(value);//// 1, 2, 3
+}
+
+for( let [key, value] of entries(obj) ) {
+  console.log([key, value]);// ['a', 1], ['b', 2], ['c', 3]
+}
+```
+
+### Object.values()
+返回一个数组，成员是参数对象自身的所有可遍历属性的值。
+
+```js
+var obj = { foo : 'bar', baz : '42'};
+Object.values(obj);
+// ["bar", 42]
+```
+
+返回数组的成员顺序，与属性的遍历部分介绍的排列规则一致。
+
+```js
+var obj = { 100 : 'a', 2 : 'b', 7 : 'c'};
+Object.values(obj);
+// ["b", "c", "a"]
+```
+
+上面代码中，属性名为数值的属性，是按照数值大小，从小到大遍历的，因此返回的顺序是b、c、a。
+
+_Object.values会过滤属性名为Symbol值的属性。_
+
+```js
+Object.values({[Symbol()] : 123, foo : 'abc'});
+// ['abc']
+```
+
+如果Object.values方法的参数是一个字符串，会返回各个字符组成的一个数组。
+
+```js
+Object.values('foo')//['f', 'o', 'o']
+```
+
+### Object.entries
+Object.entries方法返回一个数组，成员是参数对象自身的（不含继承的）所有可遍历（enumerable）属性的键值对数组。
+
+```js
+var obj = { foo : 'bar', baz : 42};
+Object.entries(obj);
+//[ ["foo", "bar"], ["baz", 42] ]
+```
+
+除了返回值不一样，该方法的行为与Object.values基本一致。
+
+如果原对象的属性名是一个Symbol值，该属性会被省略。
+
+```js
+Object.entries({[Symbol()] : 123, foo : 'abc'});
+// [ [ 'foo', 'abc' ] ]
+```
+
+Object.entries的基本用途是遍历对象的属性。
+
+```js
+let obj = { one : 1, two : 2};
+for(let [k, v] of Object.entries(obj) ) {
+  console.log(`${JSON.stringify(k)} : ${JSON.stringify(v)}`);
+}
+// "one": 1
+// "two": 2
+```
+
+Object.entries方法的一个用处是，将对象转为真正的Map结构。
+
+```js
+var obj = { foo : 'bar', baz : 42};
+var map = new Map(Object.entries(obj));
+map //Map { foo: "bar", baz: 42 }
+```
+
+自己实现Object.entries方法，非常简单。
+
+```js
+// Generator函数的版本
+function* entries(obj) {
+  for(let key of Object.keys(obj)) {
+    yield [key, obj[key]];
+  }
+}
+// 非Generator函数的版本
+function entries(obj) {
+  return (for (key of Object.keys(obj)) [key, obj[key]]);
+}
 ```

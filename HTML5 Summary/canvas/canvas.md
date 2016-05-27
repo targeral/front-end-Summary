@@ -10,9 +10,9 @@ Canvas API（画布）用于在网页实时生成图像，并且可以操作图�
 </canvas>
 ```
 
-上面代码中，如果浏览器不支持这个API，则就会显示canvas标签中间的文字——“您的浏览器不支持canvas！”。
+上面代码中，如果浏览器不支持这个API，则就会显示canvas标签中间的文字----"您的浏览器不支持canvas！"。
 
-每个canvas元素都有一个对应的context对象（上下文对象），Canvas API定义在这个context对象上面，所以需要获取这个对象，方法是使用``getContext``方法。
+每个canvas元素都有一个对应的context对象（上下文对象），Canvas API定义在这个context对象上面，所以需要获取这个对象，方法是使用`getContext`方法。
 
 ```js
 var canvas = document.getElementById('myCanvas');
@@ -25,7 +25,24 @@ if(canvas.getContext) {
 上面代码中，getContext方法指定参数2d，表示该canvas对象用于生成2D图案（即平面图案）。如果参数是webgl，就表示用于生成3D图像（即立体图案），这部分实际上单独叫做WebGL API。
 
 ## 绘图方法
-canvas画布提供了一个用来作图的平面空间，该空间的每个点都有自己的坐标，x表示横坐标，y表示竖坐标。*原点(0, 0)位于图像左上角，x轴的正向是原点向右，y轴的正向是原点向下*。
+canvas画布提供了一个用来作图的平面空间，该空间的每个点都有自己的坐标，x表示横坐标，y表示竖坐标。_原点(0, 0)位于图像左上角，x轴的正向是原点向右，y轴的正向是原点向下_。
+
+### 绘制路径
+- `beginPath`方法表示开始绘制路径。
+- `moveTo(x, y)`方法设置线段的起点。
+- `lineTo(x, y)`方法设置线段的终点。
+- `stroke`方法用来给透明的线段着色。
+
+```js
+ctx.beginPath();// 开始路径绘制
+ctx.moveTo(20, 20);// 设置路径起点，坐标为(20,20)
+ctx.lineTo(200, 20);// 绘制一条到(200,20)的直线
+ctx.lineWidth = 1.0;// 设置线宽
+ctx.strokeStyle = "#cc0000";// 设置线的颜色
+ctx.stroke();// 进行线的着色，这时整条线才变得可见
+```
+
+`moveto` 和 `lineto` 方法可以多次使用。最后，还可以使用`closePath`方法,自动绘制一条当前点到起点的直线，形成一个封闭图形，省却使用一次lineto方法。
 
 ## 图像处理
 ### drawImage方法
@@ -59,7 +76,6 @@ image.src = "image.png";
 drawImage()方法接受三个参数，第一个参数是图像文件的DOM元素（即img标签），第二个和第三个参数是图像左上角在Canvas元素中的坐标，上例中的（0, 0）就表示将图像左上角放置在Canvas元素的左上角。
 
 ### getImageData方法,putImageData方法
-
 1. getImageData方法可以用来读取Canvas的内容，返回一个对象，包含了每个像素的信息。
 
 ```js
@@ -77,7 +93,7 @@ context.putImageData(imageData, 0, 0);
 ```
 
 ### toDataURL方法
-对图像数据做出修改以后，可以使用toDataURL方法，将Canvas数据重新转化成一般的图像文件形式。简单的说:*将canvas转换为图像文件*。
+对图像数据做出修改以后，可以使用toDataURL方法，将Canvas数据重新转化成一般的图像文件形式。简单的说:_将canvas转换为图像文件_。
 
 ```js
 function converCanvasToImage( canvas ) {
@@ -102,10 +118,10 @@ ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
 ctx.fillStyle = "#cc0000";
 ctx.fillRect(10, 10, 150, 100);
 
-ctx.restore(); 
+ctx.restore();
 
 ctx.fillStyle = "#000000";
-ctx.fillRect(180,10,150,100); 
+ctx.fillRect(180,10,150,100);
 ```
 
 上面代码先用save方法，保存了当前设置，然后绘制了一个有阴影的矩形。接着，使用restore方法，恢复了保存前的设置，绘制了一个没有阴影的矩形。
@@ -126,10 +142,9 @@ if(canvas.width > 0 && canvas.height > 0) {
 以下是几种常见的处理方法。
 
 ### 灰度效果
-所谓的灰度效果，其实就是黑白效果。*灰度图（grayscale）就是取红、绿、蓝三个像素值的算术平均值*。
+所谓的灰度效果，其实就是黑白效果。_灰度图（grayscale）就是取红、绿、蓝三个像素值的算术平均值_。
 
-假定d[i]是像素数组中一个像素的红色值,则d[i+1]为绿色值,d[i+2]为蓝色值,d[i+3]就是alpha值。转为灰度的算法，
-**就是将红，绿，蓝三个值相加后除以3，再将结果写回数组。**
+假定d[i]是像素数组中一个像素的红色值,则d[i+1]为绿色值,d[i+2]为蓝色值,d[i+3]就是alpha值。转为灰度的算法， **就是将红，绿，蓝三个值相加后除以3，再将结果写回数组。**
 
 ```js
 var grayscale = function(pixels) {
