@@ -35,13 +35,13 @@
 
 一般情况下它呈现出我们所乐意看到的样子：
 
-![margin-colla-4](../img/day5/margin-colla-4.jpg)
+![margin-colla-4](./img/margin-colla-4.jpg)
 
 但随着文字信息增多后，会变地非常的糟糕：
 
-![margin-colla-5](../img/day5/margin-colla-5.jpg)
+![margin-colla-5](./img/margin-colla-5.jpg)
 
-很明显，这是因为info类里面的文字受到了浮动元素的影响，但这并不是我们所期望的。此时我们可以为P元素的内容建立一个BFC，让其内容消除对外界浮动元素的影响。根据上文所知，只要给info元素添加overflow:hidden;即可为其内容建立新的BFC。当然你也可以通过其他方法来建立。其效果如下： ![margin-colla-6](../img/day5/margin-colla-6.jpg)
+很明显，这是因为info类里面的文字受到了浮动元素的影响，但这并不是我们所期望的。此时我们可以为P元素的内容建立一个BFC，让其内容消除对外界浮动元素的影响。根据上文所知，只要给info元素添加overflow:hidden;即可为其内容建立新的BFC。当然你也可以通过其他方法来建立。其效果如下： ![margin-colla-6](./img/margin-colla-6.jpg)
 
 ### 合并外边距与BFC
 在CSS当中，相邻的两个盒子(可能是兄弟关系也可能是祖先关系)的外边距可以结合成一个单独的外边距。这种合并外边距的方式被称为折叠，并且因而所结合成的外边距称为折叠外边距。
@@ -101,7 +101,7 @@ body{padding:0;margin:0;text-align: center;}
 </div>
 ```
 
-![margin-colla-1](../img/day5/margin-colla-1.jpg)
+![margin-colla-1](./img/margin-colla-1.jpg)
 
 但是浮动元素脱离了当前的BFC并不影响它后面的兄弟元素，后面的兄弟元素与浮动元素前面的元素依然在同一个BFC当中，所以，他们之间的margin还会折叠的。下面我们对上面的demo做一下修改:
 
@@ -113,7 +113,7 @@ body{padding:0;margin:0;text-align: center;}
 </div>
 ```
 
-![margin-colla-2](../img/day6/margni-colla-2.jpg)
+![margin-colla-2](./img/margni-colla-2.jpg)
 
 从上面这个修改后的demo中可以看出，红色的块盒在没有清除浮动的情况下，它的margin-top和蓝色块盒的margin-bottom产生了折叠，这证明了我们上面得结论。
 
@@ -127,7 +127,7 @@ body{padding:0;margin:0;text-align: center;}
 </div>
 ```
 
-![margin-colla-3](../img/day6/margin-colla-3.jpg)
+![margin-colla-3](./img/margin-colla-3.jpg)
 
 上面的图中我们可以看到，我们为红色块盒设置的40px的margin-top（这里我们通过相同高度的阴影来将其可视化）好像并没有对紫色块盒起作用，而且无论我们怎么修改这个margin-top值都不会影响红色块盒的位置，而只由绿色块盒的margin-bottom所决定。
 
