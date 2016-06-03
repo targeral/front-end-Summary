@@ -643,10 +643,10 @@ Chrome Timeline，杀手级监测 & 调试工具
 #### 通过工具“看到”层
 **Chrome**
 
-[chrome](./img/chrome-layer-skitched.png)
+![chrome](./img/chrome-layer-skitched.png)
 
 #### 通过分层减小重绘面积
-[chrome](./img/chrome-layer-paint-skitched.png)
+![chrome](./img/chrome-layer-paint-skitched.png)
 
 #### 如何创建新的层
 从目前来看（Chrome、Safari等现代浏览器仍在不断迭代演进），以下情况下元素会创建自己的层（包括但不限于以下情况，待完善）：
@@ -655,7 +655,7 @@ Chrome Timeline，杀手级监测 & 调试工具
 
 自带单独分层的元素
 - 使用加速视频解码的<video>元素
-- <iframe>元素
+- `<iframe>`元素
 - Flash等插件
 
 ### 动画调优的策略与技巧
