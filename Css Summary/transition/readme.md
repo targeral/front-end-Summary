@@ -1,4 +1,4 @@
-# Transition
+# Transition(过渡)
 ## 语法
 
 ```

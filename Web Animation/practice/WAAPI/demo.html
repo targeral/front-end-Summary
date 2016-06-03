@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>test</title>
+    <style>
+        #box{
+            width:100px;
+            height: 100px;
+            background:#ccc; 
+            position: absolute;
+            left:50%;
+            top:50%;
+            transform:translate(-50%, -50%);
+            transform-origin:0 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="box"></div>
+    <div id="show">
+        <p class="startTime">0</p>
+        <p class="currentTime">0</p>
+    </div>
+    <script>
+        var box = document.getElementById("box");
+        var frames = 
+        [
+            {transform: 'rotate(0deg) translate(80px)'},
+            {transform: 'rotate(360deg) translate(80px) '},
+        ];
+        var timing = {
+            duration:2500,
+            delay:0,
+            iterations : Infinity,
+            direction:'alertnate',
+            easing:'ease-in-out',
+            fill:'forwards',
+        };
+        var player = box.animate(frames, timing);
+        var currentTime = document.querySelector(".currentTime");
+        var startTime = document.querySelector(".startTime");
+        requestAnimationFrame(function change() {
+            currentTime.innerHTML = player.currentTime;
+            startTime.innerHTML = player.startTime;
+
+            if(player.playState !== 'paused') {
+                requestAnimationFrame(change);
+            }
+        });
+    </script>
+</body>
+</html>

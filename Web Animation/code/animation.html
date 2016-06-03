@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>动画简易封装</title>
+    <style media="screen">
+      .box{
+        width:100px;
+        height: 100px;
+        border:1px solid #ccc;
+        background-color: #666;
+        border-radius: 50%;
+        margin:100px auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box">
+
+    </div>
+    <script type="text/javascript">
+      function Animator(duration, progress, easing) {
+        this.duration = duration;
+        this.progress = progress;
+        this.easing = easing || function(p) {return p};
+      };
+
+      Animator.prototype = {
+        start : function(finished) {
+          var startTime = Date.now();
+          var duration = this.duration,
+              self = this;
+
+          requestAnimationFrame(function step() {
+            var p = (Date.now() - startTime) / duration;
+            var next = true;
+
+            if( p < 1.0 ) {
+              self.progress(self.easing(p), p);
+            }else {
+              if(typeof finished === 'function') {
+                next = finished() === false;
+              }else {
+                next = finished === false;
+              }
+
+              if(!next) {
+                self.progress(self.easing(1.0), 1.0);
+              }else {
+                startTime += duration;
+                self.progress(self.easing(p), p);
+              }
+            }
+
+            if(next) requestAnimationFrame(step);
+          });
+        }
+      };
+      var box = document.querySelector('.box');
+      var animator = new Animator(2000, function(p) {
+        var tx = -100 * Math.sin(2 * Math.PI * p),
+            ty = -100 * Math.cos(2 * Math.PI * p);
+        box.style.transformOrigin = '0 ' + (100 * 2) + 'px';
+        box.style.transform = 'translate(' + tx + 'px,' + ty + 'px)';
+      });
+
+      box.addEventListener('click', function() {
+        animator.start(false);
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>圆周2</title>
+    <style media="screen">
+      .box{
+        width:100px;
+        height: 100px;
+        border:1px solid #ccc;
+        background-color: #666;
+        border-radius: 50%;
+        margin:100px auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box">
+
+    </div>
+    <script type="text/javascript">
+      var box = document.querySelector('.box');
+      box.addEventListener('click', function() {
+        var self = this, startTime = Date.now(),
+            r = 100, T = 2000;
+        requestAnimationFrame(function step() {
+          var p = Math.min(1.0, (Date.now() - startTime) / T);
+          var tx = -r * Math.sin(2 * Math.PI * p),
+              ty = -r * Math.cos(2 * Math.PI * p);
+          self.style.transformOrigin = '0 ' + (r * 2) + 'px';
+          self.style.transform = 'translate(' + tx + 'px,' + ty + 'px)';
+          if(p < 1.0) requestAnimationFrame(step);
+        });
+      });
+    </script>
+  </body>
+</html>
