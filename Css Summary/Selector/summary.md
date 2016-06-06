@@ -57,6 +57,10 @@ a:hover, a:focus, a:active{
 - :lang(language) (p:lang(it)) Selects every `<p>` element with a lang attribute equal to "it" (Italian)
 - :not(selector) 否定伪类 (:not(p)) Selects every element _that is not a `<p>` element_
 - :root (:root) Selects the document's root element
+- nth-child(n+6) 表示从头第六个开始选择，包括第六个。
+- nth-last-child(n+6) 表示从尾第六个开始选择，包括第六个。
+- nth-child(-n+6) 表示从开始的第六个开始到开始的第一个。
+- nth-last-child(-n+6) 表示从倒数的第六个开始到倒数第一个。
 
 ###伪元素 伪元素并不存在与Dom树中，是一种动态元素。通过选择器操纵伪元素，可以给页面的一些特殊部分应用样式。有个要点需要注意， **一个选择器只能给一个伪元素，比如:".el:before", 但是不能同时存在多个，比如:".el:before:after"**
 
@@ -120,7 +124,7 @@ h2 + p{
 #### 补充
 相邻同胞选择器属于兄弟选择器。兄弟选择器可以通过不同兄弟选择器与相邻兄弟选择器两种方式来创建。上面讲到的相邻同胞选择器属于相邻兄弟选择器，**要点就是相邻兄弟选择器只会选择紧跟着一个元素的另一个元素。也就是说第二个元素应该直接紧跟第一个元素并且拥有相同父元素。**
 
-而普通兄弟选择器则是第二个元素只要是第一个元素的兄弟元素(不需要紧跟着)，且两个元素拥有共同的父元素。_它通过~来创建_。看一下例子：
+而普通兄弟选择器则是 **第二个元素乃至后面的元素**，只要是第一个元素的兄弟元素(不需要紧跟着)，且两个元素拥有共同的父元素。_它通过`~`来创建_。看一下例子：
 
 ```css
 h2 ~ p{
