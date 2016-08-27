@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Flex之骰子的布局</title>
+    <style media="screen">
+      body{
+        background:#222;
+      }
+      .single, .double{
+        display: block;
+        margin-bottom:20px;
+      }
+      .box{
+        background:#fff;
+        border-radius: 5px;
+        box-shadow: 0 0 0px 5px rgba(236, 235, 235, 1);
+        padding:2px;
+        box-sizing: border-box;
+        display: inline-flex;
+        width:100px;
+        height: 100px;
+        margin-right:10px;
+        vertical-align: top;
+      }
+      .box span{
+        border-radius: 50%;
+        width:30px;
+        height: 30px;
+        background: #222;
+      }
+      .box1 span{
+
+      }
+      .box2{
+        justify-content:center;
+      }
+      .box3{
+        justify-content:flex-end;
+      }
+      .box4{
+        align-items:center;
+      }
+      .box5{
+        align-items: center;
+        justify-content:center;
+      }
+      .box6{
+        align-items: flex-end;
+        justify-content:center;
+      }
+      .box7{
+        align-items: flex-end;
+        justify-content: flex-end;
+      }
+      .box8{
+        justify-content: space-between;
+      }
+      .box9{
+
+      }
+    </style>
+  </head>
+  <body>
+    <div class="single">
+      <div class="box box1">
+        <span class="item"></span>
+      </div>
+      <div class="box box2">
+        <span class="item"></span>
+      </div>
+      <div class="box box3">
+        <span class="item"></span>
+      </div>
+      <div class="box box4">
+        <span class="item"></span>
+      </div>
+      <div class="box box5">
+        <span class="item"></span>
+      </div>
+      <div class="box box6">
+        <span class="item"></span>
+      </div>
+      <div class="box box7">
+        <span class="item"></span>
+      </div>
+    </div>
+
+    <div class="double">
+      <div class="box box8">
+        <span class="item"></span>
+        <span class="item"></span>
+      </div>
+      <div class="box box9">
+        <span class="item"></span>
+        <span class="item"></span>
+      </div>
+    </div>
+  </body>
+</html>

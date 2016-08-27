@@ -1,0 +1,1 @@
+http://matthewjamestaylor.com/blog/perfect-3-column.htm

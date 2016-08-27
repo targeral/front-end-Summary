@@ -214,7 +214,7 @@ var obj = {
     ]
 };
 
-var { p : [x, { y }] } = ob;
+var { p : [x, { y }] } = obj;
 x //"Hello"
 y //"world"
 ```
