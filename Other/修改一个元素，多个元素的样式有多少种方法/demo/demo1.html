@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Demo1</title>
     <style>
-        #box {
+        .box {
             width: 100px;
             height: 100px;
             color: red;
@@ -13,6 +13,34 @@
     </style>
 </head>
 <body>
-    <div id="box">这是一个Box</div>
+    <div id="box1" class="box one two">这是一个Box</div>
+    <div id="box2" class="box one">box1</div>
+    <div id="box3" class="box">box2</div>
+    <div id="box4" class="box">box3</div>
+    <input type="text" id="styleSheet">
+    <button>change</button>
+    <script>
+        var sheets = document.styleSheets,
+            len = sheets.length;
+        console.log(sheets);
+
+        function addStyle(styleString) {
+            var sheets = document.styleSheets,
+                sheet = sheets[sheets.length - 1];
+            sheet.insertRule(styleString, sheet.cssRules.length);
+        }
+
+        var btn = document.querySelector('button'),
+            inputValue = document.querySelector('#styleSheet').value;
+
+        console.log('inputvalue', inputValue);
+
+        btn.addEventListener('click', function() {
+            var inputValue = document.querySelector('#styleSheet').value;
+            console.log('input', inputValue);
+            addStyle(inputValue);
+        });
+
+    </script>
 </body>
 </html>

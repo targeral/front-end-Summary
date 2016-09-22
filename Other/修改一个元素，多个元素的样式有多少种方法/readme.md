@@ -118,8 +118,8 @@ CSS.supports('transform-origin', '5px');
 CSS.supports('(display: table-cell) and (display: list-item)');
 ```
 
-
-我们还可以通过 `StyleSheet` 对象来修改元素的CSS样式。下面介绍一下 `StyleSheet` 。
+## 修改多个元素的样式
+我们还可以通过 `StyleSheet` 对象来修改一个元素的CSS样式。而且不止可以修改某一个元素的CSS样式，还可以修改多个元素的CSS样式。下面介绍一下 `StyleSheet` 。
 
 ###  StyleSheet对象——获取样式表 
 
@@ -151,3 +151,93 @@ document.querySelector('#linkElement').sheet
 document.querySelector('#styleElement').sheet
 ```
 ### StyleSheet对象——属性
+StyleSheet对象有以下属性。
+#### media
+media属性用于表示这个样式表是用于什么样的设备。比如: 屏幕(screen),打印(print),或两者都适用(all)。该属性只读，默认为screen。
+
+```js
+document.styleSheets[0].media.mediaText
+//all
+```
+
+#### disable属性
+disabled属性用于打开或关闭一张样式表。
+
+```js
+document.querySelector('#linkElement').disable = true;
+// 或者
+document.querySelector('#linkElement').disabled = 'disabled';
+```
+
+一旦样式表设置了disabled属性，这张样式表就将失效。
+
+**注意，disabled属性只能在JavaScript中设置，不能在HTML语句中设置。**
+
+#### href属性
+href属性是只读属性，返回StyleSheet对象连接的样式表地址。对于内嵌的style节点，该属性等于null。
+
+```js
+document.styleSheets[0].href
+```
+#### title属性
+title属性返回StyleSheet对象的title值。
+#### type属性
+type属性返回StyleSheet对象的type值，通常是text/css。
+#### parentStyleSheet属性
+CSS的@import命令允许在样式表中加载其他样式表。parentStyleSheet属性返回包括了当前样式表的那张样式表。如果当前样式表是顶层样式表，则该属性返回null。
+
+```js
+if(styleSheet.parentStyleSheet) {
+	sheet = stylesheet.parentStyleSheet;
+}else {
+	sheet = stylesheet;
+}
+```
+#### ownerNode属性
+ownerNode属性返回StyleSheet对象所在的DOM节点，通常是`<link>`或`<style>`。对于那些由其他样式表引用的样式表，该属性为null。
+
+#### **cssRules属性**(重点)
+cssRules属性指向一个类似数组的对象，里面每一个成员就是当前样式表的一条CSS规则。使用该规则的cssText属性，可以得到CSS规则对应的字符串。
+
+```js
+var sheet = document.styleSheets[0];
+sheet.cssRules[0].cssText
+```
+每条CSS规则还有一个style属性，指向一个对象，用来读写具体的CSS命令。
+
+```js
+styleSheet.cssRules[0].style.color = 'red';
+styleSheet.cssRules[1].style.color = 'purple';
+```
+
+在cssRules属性下，还有个属性`selectorText`，指向的是该样式的选择器。
+#### insertRule()，deleteRule()
+`insertRule`方法用于在当前样式表的cssRules对象插入CSS规则，`deleteRule`方法用于删除cssRules对象的CSS规则。
+
+```js
+var sheet = document.sheetStyles[0];
+sheet.insertRule('#block { color: white}', 0);
+sheet.insertRule('p { color:red }',1);
+sheet.deleteRule(1);
+```
+insertRule方法的第一个参数是表示CSS规则的字符串，第二个参数是该规则在cssRules对象的插入位置。deleteRule方法的参数是该条规则在cssRules对象中的位置。
+
+#### 函数
+通过stylesheet对象我们可以构造一个改变元素样式的函数。
+
+```js
+function changeStyle(stylesheetString) {
+	var index = document.styleSheets.length - 1;
+    var stylesheet = document.styleSheets[index];
+    while(stylesheet.cssRules === null && index > 0) {
+    	index --;
+        stylesheet = document.styleSheets[index]
+    }
+    stylesheet.insertRule(stylesheetString, stylesheet.cssRules.length);
+}
+```
+函数接受一个样式规则的字符串。例如:
+
+```js
+var stylesheetString = 'selector {border:1px solid red;}'
+```
