@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DragEvent</title>
+    <style>
+        .box {
+            width: 100px;
+            height: 100px;
+            background: #ccc;
+        }
+        .box-to {
+            margin-left:300px;
+            width:200px;
+            height: 200px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="box" draggable="true">sdfa</div>
+    <div class="box-to"></div>
+    <script>
+        const div = document.querySelector('.box');
+        const divto = document.querySelector('.box-to');
+        div.addEventListener('dragstart', function(e) {
+            event.target.style.opacity = 0.5;
+
+            //this.style.backgroundColor = 'red';
+        }, false);
+        div.addEventListener('dragend', function(e) {
+            event.target.style.opacity = '';
+            //this.style.backgroundColor = 'green';
+        }, false);
+        divto.addEventListener('dragover', function(e) {
+            event.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        });
+        divto.addEventListener('dragenter', function(e) {
+            event.target.style.background = 'purple';
+        }, false);
+        divto.addEventListener('dragleave', function( event ) {
+          // 目标节点的背景色恢复原样
+            event.target.style.background = "";
+        }, false);
+        divto.addEventListener('drop', function( event ) {
+          // 防止事件默认行为（比如某些Elment节点上可以打开链接）
+          event.preventDefault();
+            // 恢复目标节点背景色
+            event.target.style.background = '';
+            // 将被拖拉节点插入目标节点
+            div.parentNode.removeChild( div );
+            event.target.appendChild( div );
+        }, false);
+    </script>
+</body>
+</html>
